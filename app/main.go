@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -17,8 +20,8 @@ func main() {
 	defer ln.Close()
 
 	for {
-	
-		// Client connection 
+
+		// Client connection
 		conn, err := ln.Accept()
 		if err != nil {
 			fmt.Println("Connection not established")
@@ -29,34 +32,41 @@ func main() {
 	}
 
 }
- 
-func handleConnection(conn net.Conn) {
-	defer conn.Close() 
 
-	// Remote network address 
-	remoteAddr := conn.RemoteAddr().String() 
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	// Remote network address
+	remoteAddr := conn.RemoteAddr().String()
 	fmt.Printf("Client connected: %s\n", remoteAddr)
 
-	// Buffer to store data 
+	// Buffer to store data
 	buffer := make([]byte, 1024)
 
 	for {
 
 		// Read number of bytes
-		bytes, err := conn.Read(buffer)
+		numBytes, err := conn.Read(buffer)
 		if err != nil {
-			fmt.Println("Message not received")
-			continue 
+			// Handler for standard nc client pressing Ctrl + C (Terminal intercepts lcoally and kills client process immediately)
+			if errors.Is(err, io.EOF) {
+				fmt.Printf("Server closed gracefully: %s\n", remoteAddr)
+			} else {
+				fmt.Println("Message not received")
+			}
+			return
 		}
 
-		// Convert to message and check for connection exit 
-		message := string(buffer[:bytes])
-		if message == "exit\n" || message == "exit\r\n" {
-			fmt.Printf("Connection closed: %s\n", remoteAddr)
-			return 
+		byteMessage := buffer[:numBytes]
+
+		// Handle Ctrl+C byte for clients running in raw mode (input contains ASCII value 3)
+		if bytes.IndexByte(byteMessage, 0x03) != -1 {
+
+			fmt.Printf("Ctrl+C received from %s. Closing client connection.\n", remoteAddr)
+			return
 		}
 
-		// Same reply regardless of input 
+		// Same reply regardless of input
 		conn.Write([]byte("+PONG\r\n"))
 	}
 }
