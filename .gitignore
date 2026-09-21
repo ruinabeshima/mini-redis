@@ -1,0 +1,15 @@
+# Learning scaffolding — roadmap and per-stage briefs.
+# Untracked: the portfolio repo should contain only work I produced.
+.learning/
+CLAUDE.md
+
+# Build artifacts
+/bin/
+*.test
+
+# Redis data files
+*.rdb
+dump.rdb
+
+# macOS
+.DS_Store
