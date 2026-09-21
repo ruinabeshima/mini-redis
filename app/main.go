@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	// Redis runs on PORT 6379
+	// Redis server runs on PORT 6379
 	ln, err := net.Listen("tcp", ":6379")
 	if err != nil {
 		fmt.Println("Connection failed: ", err)
@@ -16,20 +16,26 @@ func main() {
 	}
 	defer ln.Close()
 
-	// Run continuously
 	for {
+	
+		// Client connection 
 		conn, err := ln.Accept()
 		if err != nil {
 			fmt.Println("Connection not established \n")
 			continue
 		}
 
-		// Handle connection
 		go handleConnection(conn)
 	}
 
 }
-
-function handleConnection(conn net.Conn) {
+ 
+func handleConnection(conn net.Conn) {
 	defer conn.Close() 
+
+	// Remote network address 
+	remoteAddr := conn.RemoteAddr().String() 
+	fmt.Printf("Client connected: %s\n", remoteAddr)
+
+	
 }
