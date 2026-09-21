@@ -21,7 +21,7 @@ func main() {
 		// Client connection 
 		conn, err := ln.Accept()
 		if err != nil {
-			fmt.Println("Connection not established \n")
+			fmt.Println("Connection not established")
 			continue
 		}
 
@@ -37,5 +37,26 @@ func handleConnection(conn net.Conn) {
 	remoteAddr := conn.RemoteAddr().String() 
 	fmt.Printf("Client connected: %s\n", remoteAddr)
 
-	
+	// Buffer to store data 
+	buffer := make([]byte, 1024)
+
+	for {
+
+		// Read number of bytes
+		bytes, err := conn.Read(buffer)
+		if err != nil {
+			fmt.Println("Message not received")
+			continue 
+		}
+
+		// Convert to message and check for connection exit 
+		message := string(buffer[:bytes])
+		if message == "exit\n" || message == "exit\r\n" {
+			fmt.Printf("Connection closed: %s\n", remoteAddr)
+			return 
+		}
+
+		// Same reply regardless of input 
+		conn.Write([]byte("+PONG\r\n"))
+	}
 }
