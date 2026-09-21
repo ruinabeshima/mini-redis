@@ -53,7 +53,7 @@ func handleConnection(conn net.Conn) {
 			if errors.Is(err, io.EOF) {
 				log.Printf("Client connection closed gracefully: %s\n", remoteAddr)
 			} else {
-				log.Print("Message not received: %v\n", err)
+				log.Printf("Message not received: %v\n", err)
 			}
 			return
 		}
