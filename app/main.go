@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -39,7 +38,7 @@ func handleConnection(conn net.Conn) {
 
 	// Remote network address
 	remoteAddr := conn.RemoteAddr().String()
-	fmt.Printf("Client connected: %s\n", remoteAddr)
+	log.Printf("Client connected: %s\n", remoteAddr)
 
 	// Buffer to store data
 	buffer := make([]byte, 1024)
@@ -59,13 +58,6 @@ func handleConnection(conn net.Conn) {
 		}
 
 		byteMessage := buffer[:numBytes]
-
-		// Handle Ctrl+C byte for clients running in raw mode (input contains ASCII value 3)
-		if bytes.IndexByte(byteMessage, 0x03) != -1 {
-
-			log.Printf("Ctrl+C received from %s. Closing client connection.\n", remoteAddr)
-			return
-		}
 
 		// Same reply regardless of input
 		conn.Write([]byte("+PONG\r\n"))
