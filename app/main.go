@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"net"
 	"os"
-	"log"
 )
 
 func main() {
