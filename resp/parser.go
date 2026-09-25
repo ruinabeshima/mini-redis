@@ -13,11 +13,6 @@ import (
 
 func parseSimpleString(data []byte) (string, int, error) {
 
-	// Verify prefix
-	if data[0] != '+' {
-		return "", 0, errors.New("wrong command type")
-	}
-
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
 	if err != nil {
@@ -32,11 +27,6 @@ func parseSimpleString(data []byte) (string, int, error) {
 
 func parseSimpleError(data []byte) (string, int, error) {
 
-	// Verify prefix
-	if data[0] != '-' {
-		return "", 0, errors.New("wrong command type")
-	}
-
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
 	if err != nil {
@@ -49,11 +39,6 @@ func parseSimpleError(data []byte) (string, int, error) {
 
 // int: Integer, int: number of bytes consumed
 func parseInteger(data []byte) (int, int, error) {
-
-	// Verify prefix
-	if data[0] != ':' {
-		return 0, 0, errors.New("wrong command type")
-	}
 
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
@@ -73,11 +58,6 @@ func parseInteger(data []byte) (int, int, error) {
 
 // 　Bool return value is for isNull (null bulk string)
 func parseBulkString(data []byte) (string, bool, int, error) {
-
-	// Verify prefix
-	if data[0] != '$' {
-		return "", false, 0, errors.New("wrong command type")
-	}
 
 	// Retrieve string length and convert to int
 	length, err := readLine(data, 1)
@@ -117,11 +97,6 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 }
 
 func parseArray(data []byte) (Value, int, error) {
-
-	// Verify prefix
-	if data[0] != '*' {
-		return Value{}, 0, errors.New("wrong command type")
-	}
 
 	// Get length of array
 	length, err := readLine(data, 1)
