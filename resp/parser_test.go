@@ -6,6 +6,7 @@ package resp
 
 import (
 	"errors"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -325,9 +326,8 @@ func TestParse(t *testing.T) {
 					t.Errorf("Expected integer value: %d, actual integer value: %d", tt.expectedVal.Int, val.Int)
 				}
 
-				if len(val.Array) != len(tt.expectedVal.Array) {
-					t.Errorf("Expected array length: %d, actual array length: %d", len(tt.expectedVal.Array), len(val.Array))
-				}
+				if !reflect.DeepEqual(val.Array, tt.expectedVal.Array) {
+					t.Errorf("Expected array: %+v, actual array: %+v", tt.expectedVal.Array, val.Array)
 
 				if val.IsNull != tt.expectedVal.IsNull {
 					t.Errorf("Expected IsNull value: %t, actual IsNull value: %t", tt.expectedVal.IsNull, val.IsNull)

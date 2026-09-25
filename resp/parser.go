@@ -68,7 +68,7 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 		return "", false, 0, fmt.Errorf("%w\n", err)
 	}
 
-	// Negative lengths 
+	// Negative lengths
 	if intLength < -1 {
 		return "", false, 0, ErrInvalidLength
 	}
@@ -107,7 +107,7 @@ func parseArray(data []byte) (Value, int, error) {
 		return Value{}, 0, fmt.Errorf("%w\n", err)
 	}
 
-	// Invalid length 
+	// Invalid length
 	if intLength < -1 {
 		return Value{}, 0, ErrInvalidLength
 	}
@@ -123,7 +123,7 @@ func parseArray(data []byte) (Value, int, error) {
 
 	//　Recursively parse each child element
 	for i := 0; i < intLength; i++ {
-		// Ran out of data before all elements arrived 
+		// Ran out of data before all elements arrived
 		if offset >= len(data) {
 			return Value{}, 0, ErrIncomplete
 		}
