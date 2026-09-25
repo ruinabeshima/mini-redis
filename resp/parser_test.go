@@ -298,7 +298,7 @@ func TestParse(t *testing.T) {
 				}
 
 				if val.IsNull != tt.expectedVal.IsNull {
-					t.Errorf("Expected IsNull value: %t, actual IsNull value: %t", val.IsNull, tt.expectedVal.IsNull)
+					t.Errorf("Expected IsNull value: %t, actual IsNull value: %t", tt.expectedVal.IsNull, val.IsNull)
 				}
 			}
 
