@@ -98,13 +98,13 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 	bulkStart := 1 + len(length) + 2
 	bulkEnd := bulkStart + intLength
 	if bulkEnd+2 > len(data) {
-		return "", false, 0, errors.New("incomplete bulk string payload")
+		return "", false, 0, ErrIncomplete
 	}
 
 	// Slice the payload directly, and verify CRLF after
 	bulkBytes := data[bulkStart:bulkEnd]
 	if !is_CRLF(data, bulkEnd) {
-		return "", false, 0, errors.New("missing trailing CSLF after bulk string")
+		return "", false, 0, ErrIncomplete
 	}
 
 	consumed := 1 + len(length) + 2 + intLength + 2

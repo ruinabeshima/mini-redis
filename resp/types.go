@@ -1,6 +1,6 @@
-/* 
+/*
 	Entry point of package: parses incoming byte streams in RESP2 Format and returns command
-	Includes simple strings, simple errors, integers, bulkStrings, array 
+	Includes simple strings, simple errors, integers, bulkStrings, array
 	Parse() function is exported into main/connection.go
 */
 
@@ -24,6 +24,9 @@ type Value struct {
 	Array  []Value
 	IsNull bool // Null bulk strings, null array
 }
+
+// Export error for incomplete network reads
+var ErrIncomplete = errors.New("incomplete RESP payload")
 
 func Parse(data []byte) (Value, int, error) {
 	if len(data) == 0 {

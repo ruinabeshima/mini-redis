@@ -33,7 +33,7 @@ func readLine(data []byte, start int) ([]byte, error) {
 
 	// \r\n not included
 	if end == len(data) {
-		return nil, errors.New("CRLF not included")
+		return nil, ErrIncomplete
 	}
 
 	return data[start:end], nil
