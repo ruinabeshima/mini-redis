@@ -28,6 +28,9 @@ type Value struct {
 // Export error for incomplete network reads
 var ErrIncomplete = errors.New("incomplete RESP payload")
 
+// Export error for lengths less than -1
+var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
+
 func Parse(data []byte) (Value, int, error) {
 	if len(data) == 0 {
 		return Value{}, 0, errors.New("empty payload")

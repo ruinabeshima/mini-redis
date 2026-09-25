@@ -161,6 +161,16 @@ func TestParse(t *testing.T) {
 			expectedError: ErrIncomplete,
 		},
 		{
+			name:          "bulk string length of -2",
+			input:         []byte("$-2\r\n"),
+			expectedError: ErrInvalidLength,
+		},
+		{
+			name:          "bulk string large negative length",
+			input:         []byte("$-100\r\nhello\r\n"),
+			expectedError: ErrInvalidLength,
+		},
+		{
 			name:          "non-numeric bulk string length",
 			input:         []byte("$abc\r\nhello\r\n"),
 			expectedError: strconv.ErrSyntax,
@@ -224,6 +234,26 @@ func TestParse(t *testing.T) {
 			name:          "array with incomplete element",
 			input:         []byte("*2\r\n$4\r\nECHO\r\n$5\r\nhel"),
 			expectedError: ErrIncomplete,
+		},
+		{
+			name:          "array length of -2",
+			input:         []byte("*-2\r\n"),
+			expectedError: ErrInvalidLength,
+		},
+		{
+			name:          "array large negative length",
+			input:         []byte("*-100\r\n+OK\r\n"),
+			expectedError: ErrInvalidLength,
+		},
+		{
+			name:          "nested array with invalid length",
+			input:         []byte("*1\r\n*-2\r\n"),
+			expectedError: ErrInvalidLength,
+		},
+		{
+			name:          "array element with invalid bulk string length",
+			input:         []byte("*1\r\n$-2\r\n"),
+			expectedError: ErrInvalidLength,
 		},
 		{
 			name:          "non-numeric array length",

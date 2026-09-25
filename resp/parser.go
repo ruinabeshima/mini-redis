@@ -89,6 +89,11 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 		return "", false, 0, fmt.Errorf("%w\n", err)
 	}
 
+	// Negative lengths 
+	if intLength < -1 {
+		return "", false, 0, ErrInvalidLength
+	}
+
 	// Null bulk strings (-1)
 	if intLength == -1 {
 		return "", true, 5, nil
@@ -126,6 +131,11 @@ func parseArray(data []byte) (Value, int, error) {
 	intLength, err := strconv.Atoi(string(length))
 	if err != nil {
 		return Value{}, 0, fmt.Errorf("%w\n", err)
+	}
+
+	// Invalid length 
+	if intLength < -1 {
+		return Value{}, 0, ErrInvalidLength
 	}
 
 	// Null array
