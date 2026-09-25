@@ -10,6 +10,7 @@ import (
 	"log"
 	"mini-redis/resp"
 	"net"
+	"strings" // Temporary package for output command string
 )
 
 func handleConnection(conn net.Conn) {
@@ -59,7 +60,14 @@ func handleConnection(conn net.Conn) {
 			// Slice off parsed bytes to advance streamBuffer
 			streamBuffer = streamBuffer[bytesConsumed:]
 
-			log.Printf("String Message: %s\n", val.Str)
+			// Handle commands in arrays
+			comm := ""
+			if val.Type == '*' && len(val.Array) > 0 {
+				for i := 0; i < len(val.Array); i++ {
+					comm += val.Array[i].Str + " "
+				}
+			}
+			log.Printf("Command: %s\n", strings.TrimSpace(comm))
 		}
 
 		// Same reply regardless of input
