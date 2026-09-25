@@ -1,7 +1,7 @@
 /*
 	Entry point of package: parses incoming byte streams in RESP2 Format and returns command
 	Includes simple strings, simple errors, integers, bulkStrings, array
-	Parse() function is exported into main/connection.go
+	Parse() function is exported into main/server.go
 */
 
 package resp

@@ -6,9 +6,9 @@ package main
 
 import (
 	"errors"
+	"github.com/ruinabeshima/mini-redis/resp"
 	"io"
 	"log"
-	"github.com/ruinabeshima/mini-redis/resp"
 	"net"
 	"strings" // Temporary package for output command string
 )
