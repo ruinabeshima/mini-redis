@@ -1,5 +1,6 @@
 /*
 	Table driven tests for Parse() function
+	100% coverage reached
 */
 
 package resp
