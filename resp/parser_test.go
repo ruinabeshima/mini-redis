@@ -315,7 +315,7 @@ func TestParse(t *testing.T) {
 			// Assert parsed value
 			if tt.expectedError == nil {
 				if tt.expectedVal.Type != val.Type {
-					t.Errorf("Expected type: %v, actual type: %v", tt.expectedVal.Type, val.Type)
+					t.Errorf("Expected type: %q, actual type: %q", tt.expectedVal.Type, val.Type)
 				}
 
 				if val.Str != tt.expectedVal.Str {
