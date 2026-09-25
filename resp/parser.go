@@ -6,7 +6,6 @@
 package resp
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )

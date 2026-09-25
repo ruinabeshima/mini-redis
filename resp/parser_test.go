@@ -20,6 +20,23 @@ func TestParse(t *testing.T) {
 		expectedBytes int
 		expectedError error
 	}{
+		// Invalid input
+		{
+			name:          "empty payload",
+			input:         []byte(""),
+			expectedError: ErrEmptyPayload,
+		},
+		{
+			name:          "unknown type prefix",
+			input:         []byte("!foo\r\n"),
+			expectedError: ErrUnknownType,
+		},
+		{
+			name:          "array element with unknown type prefix",
+			input:         []byte("*1\r\n!foo\r\n"),
+			expectedError: ErrUnknownType,
+		},
+
 		// Simple strings
 		{
 			name:          "simple string",

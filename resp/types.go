@@ -25,15 +25,15 @@ type Value struct {
 	IsNull bool // Null bulk strings, null array
 }
 
-// Export error for incomplete network reads
+// Export error types
 var ErrIncomplete = errors.New("incomplete RESP payload")
-
-// Export error for lengths less than -1
 var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
+var ErrEmptyPayload = errors.New("empty payload")
+var ErrUnknownType = errors.New("unknown / invalid command")
 
 func Parse(data []byte) (Value, int, error) {
 	if len(data) == 0 {
-		return Value{}, 0, errors.New("empty payload")
+		return Value{}, 0, ErrEmptyPayload
 	}
 
 	switch data[0] {
@@ -58,6 +58,6 @@ func Parse(data []byte) (Value, int, error) {
 		return arr, consumed, err
 
 	default:
-		return Value{}, 0, errors.New("unknown / invalid command")
+		return Value{}, 0, ErrUnknownType
 	}
 }
