@@ -4,8 +4,6 @@
 
 package resp
 
-import "errors"
-
 func is_CRLF(byteArray []byte, pointer int) bool {
 
 	// Pointer out of bounds
