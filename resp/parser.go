@@ -1,5 +1,6 @@
 /*
 	Functions to parse each individual data type in RESP2
+	Each function returns the parsed data value, number of bytes processed, and error message if applicable
 */
 
 package resp

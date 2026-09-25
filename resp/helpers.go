@@ -1,5 +1,5 @@
 /*
-	Helper functions to verify CRLF and read lines of data
+	Helper functions to verify CRLF \r\n and read lines of data
 */
 
 package resp
