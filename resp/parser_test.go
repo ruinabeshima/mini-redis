@@ -236,6 +236,21 @@ func TestParse(t *testing.T) {
 			expectedError: ErrIncomplete,
 		},
 		{
+			name:          "array missing final element",
+			input:         []byte("*2\r\n+OK\r\n"),
+			expectedError: ErrIncomplete,
+		},
+		{
+			name:          "array header with no elements",
+			input:         []byte("*1\r\n"),
+			expectedError: ErrIncomplete,
+		},
+		{
+			name:          "nested array missing inner element",
+			input:         []byte("*1\r\n*2\r\n:1\r\n"),
+			expectedError: ErrIncomplete,
+		},
+		{
 			name:          "array length of -2",
 			input:         []byte("*-2\r\n"),
 			expectedError: ErrInvalidLength,

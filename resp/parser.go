@@ -149,6 +149,11 @@ func parseArray(data []byte) (Value, int, error) {
 
 	//　Recursively parse each child element
 	for i := 0; i < intLength; i++ {
+		// Ran out of data before all elements arrived 
+		if offset >= len(data) {
+			return Value{}, 0, ErrIncomplete
+		}
+
 		val, consumed, err := Parse(data[offset:])
 		if err != nil {
 			return Value{}, 0, err
