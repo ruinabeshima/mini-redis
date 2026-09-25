@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"log"
 	"net"
 	"os"
+	"fmt"
 )
 
 func main() {
@@ -17,6 +17,7 @@ func main() {
 		log.Println("Connection failed: ", err)
 		os.Exit(1)
 	}
+	fmt.Println("Server started on PORT 6379")
 	defer ln.Close()
 
 	for {
@@ -58,6 +59,7 @@ func handleConnection(conn net.Conn) {
 		}
 
 		byteMessage := buffer[:numBytes]
+		fmt.Println("Message: ", byteMessage)
 
 		// Same reply regardless of input
 		conn.Write([]byte("+PONG\r\n"))
