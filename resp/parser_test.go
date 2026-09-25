@@ -328,6 +328,7 @@ func TestParse(t *testing.T) {
 
 				if !reflect.DeepEqual(val.Array, tt.expectedVal.Array) {
 					t.Errorf("Expected array: %+v, actual array: %+v", tt.expectedVal.Array, val.Array)
+				}
 
 				if val.IsNull != tt.expectedVal.IsNull {
 					t.Errorf("Expected IsNull value: %t, actual IsNull value: %t", tt.expectedVal.IsNull, val.IsNull)
