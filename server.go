@@ -8,7 +8,7 @@ import (
 	"errors"
 	"io"
 	"log"
-	"github.com/ruinabeshima/RESP-parser/resp"
+	"github.com/ruinabeshima/mini-redis/resp"
 	"net"
 	"strings" // Temporary package for output command string
 )
