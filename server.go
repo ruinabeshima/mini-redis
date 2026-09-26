@@ -6,11 +6,11 @@ package main
 
 import (
 	"errors"
+	"github.com/ruinabeshima/mini-redis/handler"
 	"github.com/ruinabeshima/mini-redis/resp"
 	"io"
 	"log"
 	"net"
-	"strings" // Temporary package for output command string
 )
 
 func handleConnection(conn net.Conn) {
@@ -61,13 +61,20 @@ func handleConnection(conn net.Conn) {
 			streamBuffer = streamBuffer[bytesConsumed:]
 
 			// Handle commands in arrays
-			comm := ""
+			parsedArray := []string{}
 			if val.Type == '*' && len(val.Array) > 0 {
 				for i := 0; i < len(val.Array); i++ {
-					comm += val.Array[i].Str + " "
+					parsedArray = append(parsedArray, val.Array[i].Str)
 				}
 			}
-			log.Printf("Command: %s\n", strings.TrimSpace(comm))
+
+			// Handle command by parsing first
+			comm, err := handler.ParseCommand(parsedArray)
+			if err != nil {
+				log.Printf("Handler error: %v\n", err)
+				return
+			}
+			log.Printf("%+v\n", comm)
 		}
 
 		// Same reply regardless of input

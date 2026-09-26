@@ -16,7 +16,7 @@ type Command struct {
 	Args []string
 }
 
-func parseCommand(parsedArray []string) (Command, error) {
+func ParseCommand(parsedArray []string) (Command, error) {
 	var command Command
 
 	if len(parsedArray) == 0 {
