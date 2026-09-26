@@ -1,17 +1,24 @@
 package handler 
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type Command struct {
 	Name string 
 	Args []string
 }
 
-func ParseCommand(parsedArray []string) Command {
+func ParseCommand(parsedArray []string) Command, error {
 	var command Command 
 
+	if len(parsedArray) == 0 {
+		return Command{}, errors.New("no command provided")
+	}
+
 	// First element is the command 
-	command.Name = parsedArray[0]
+	command.Name = strings.ToUpper(parsedArray[0])
 
 	// Other elements after are the commands
 	if len(parsedArray) > 1 {
