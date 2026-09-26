@@ -1,3 +1,9 @@
+/* 
+	Parses the command from an array of strings into a Go structure with name and arguments
+	First element of array is the name 
+	All remaining elements are the arguments 
+*/
+
 package handler
 
 import (
@@ -10,7 +16,7 @@ type Command struct {
 	Args []string
 }
 
-func ParseCommand(parsedArray []string) (Command, error) {
+func parseCommand(parsedArray []string) (Command, error) {
 	var command Command
 
 	if len(parsedArray) == 0 {
