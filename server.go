@@ -38,8 +38,6 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		log.Printf("Raw Bytes Received: %q (Hex: %x)\n", readBuffer[:numBytes], readBuffer[:numBytes])
-
 		// Append new bytes onto persistent buffer
 		streamBuffer = append(streamBuffer, readBuffer[:numBytes]...)
 
@@ -75,7 +73,7 @@ func handleConnection(conn net.Conn) {
 				return
 			}
 			returnBytes := handler.ExecuteCommand(comm)
-			log.Printf("%q\n", returnBytes)
+			log.Printf("Return bytes: %q\n", returnBytes)
 		}
 	}
 }
