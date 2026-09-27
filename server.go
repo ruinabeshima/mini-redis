@@ -68,16 +68,14 @@ func handleConnection(conn net.Conn) {
 				}
 			}
 
-			// Handle command by parsing first
+			// Handle command
 			comm, err := handler.ParseCommand(parsedArray)
 			if err != nil {
 				log.Printf("Handler error: %v\n", err)
 				return
 			}
-			log.Printf("%+v\n", comm)
+			returnBytes := handler.ExecuteCommand(comm)
+			log.Printf("%q\n", returnBytes)
 		}
-
-		// Same reply regardless of input
-		conn.Write([]byte("+PONG\r\n"))
 	}
 }
