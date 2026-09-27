@@ -5,20 +5,21 @@
 
 package handler
 
-import "errors"
+import "fmt"
 
 // Hashmap with string keys and function values
 type handlerFunc func(args []string) []byte
 
 var operations = map[string]handlerFunc{
 	"PING": handlePing,
+	"ECHO": handleEcho,
 }
 
 func ExecuteCommand(command Command) []byte {
-	fn, exists = operations[command.Name]
+	fn, exists := operations[command.Name]
 
 	if !exists {
-		return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", cmd.Name))
+		return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", command.Name))
 	}
 
 	return fn(command.Args)

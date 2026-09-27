@@ -16,3 +16,12 @@ func handlePing(args []string) []byte {
 	// Return bulk string containing message
 	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0]), args[0]))
 }
+
+func handleEcho(args []string) []byte {
+	if len(args) == 0 || len(args) > 1 {
+		return []byte("-ERR wrong number of arguments for 'echo' command\r\n")
+	}
+
+	// Bulk string with argument
+	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0]), args[0]))
+}
