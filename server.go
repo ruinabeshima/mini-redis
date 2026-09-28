@@ -58,16 +58,8 @@ func handleConnection(conn net.Conn) {
 			// Slice off parsed bytes to advance streamBuffer
 			streamBuffer = streamBuffer[bytesConsumed:]
 
-			// Handle commands in arrays
-			parsedArray := []string{}
-			if val.Type == '*' && len(val.Array) > 0 {
-				for i := 0; i < len(val.Array); i++ {
-					parsedArray = append(parsedArray, val.Array[i].Str)
-				}
-			}
-
 			// Handle command
-			comm, err := handler.ParseCommand(parsedArray)
+			comm, err := handler.ParseCommand(val)
 			if err != nil {
 				log.Printf("Handler error: %v\n", err)
 				return
