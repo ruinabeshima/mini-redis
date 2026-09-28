@@ -1,10 +1,6 @@
-# Learning scaffolding — roadmap and per-stage briefs.
-# Untracked: the portfolio repo should contain only work I produced.
-.learning/
-CLAUDE.md
-
 # Build artifacts
 /bin/
+/mini-redis
 *.test
 
 # Redis data files
