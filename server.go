@@ -73,7 +73,7 @@ func handleConnection(conn net.Conn) {
 				return
 			}
 			returnBytes := handler.ExecuteCommand(comm)
-			log.Printf("Return bytes: %q\n", returnBytes)
+			conn.Write(returnBytes)
 		}
 	}
 }
