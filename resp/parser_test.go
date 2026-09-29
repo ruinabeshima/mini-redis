@@ -190,6 +190,11 @@ func TestParse(t *testing.T) {
 			expectedError: ErrInvalidLength,
 		},
 		{
+			name:          "bulk string length exceeds limit",
+			input:         []byte("$9223372036854775807\r\n"),
+			expectedError: ErrTooLarge,
+		},
+		{
 			name:          "non-numeric bulk string length",
 			input:         []byte("$abc\r\nhello\r\n"),
 			expectedError: strconv.ErrSyntax,
@@ -288,6 +293,11 @@ func TestParse(t *testing.T) {
 			name:          "array element with invalid bulk string length",
 			input:         []byte("*1\r\n$-2\r\n"),
 			expectedError: ErrInvalidLength,
+		},
+		{
+			name:          "array length exceeds limit",
+			input:         []byte("*9223372036854775807\r\n"),
+			expectedError: ErrTooLarge,
 		},
 		{
 			name:          "non-numeric array length",
