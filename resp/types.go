@@ -6,7 +6,10 @@
 
 package resp
 
-import "errors"
+import (
+	"bufio"
+	"errors"
+)
 
 // Data types correspond to symbol of first byte
 const (
@@ -34,34 +37,36 @@ type Value struct {
 // Export error types
 var ErrIncomplete = errors.New("incomplete RESP payload")
 var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
-var ErrEmptyPayload = errors.New("empty payload")
 var ErrUnknownType = errors.New("unknown / invalid command")
 var ErrTooLarge = errors.New("length exceeds limit")
 
-func Parse(data []byte) (Value, int, error) {
-	if len(data) == 0 {
-		return Value{}, 0, ErrEmptyPayload
+func Parse(r *bufio.Reader) (Value, int, error) {
+
+	// Read and consume the first byte (command type)
+	typeByte, err := r.ReadByte()
+	if err != nil {
+		return Value{}, 0, err
 	}
 
-	switch data[0] {
+	switch typeByte {
 	case simpleString:
-		str, consumed, err := parseSimpleString(data)
+		str, consumed, err := parseSimpleString(r)
 		return Value{Type: simpleString, Str: str}, consumed, err
 
 	case simpleError:
-		errStr, consumed, err := parseSimpleError(data)
+		errStr, consumed, err := parseSimpleError(r)
 		return Value{Type: simpleError, Str: errStr}, consumed, err
 
 	case integer:
-		num, consumed, err := parseInteger(data)
+		num, consumed, err := parseInteger(r)
 		return Value{Type: integer, Int: num}, consumed, err
 
 	case bulkString:
-		bstr, isNull, consumed, err := parseBulkString(data)
+		bstr, isNull, consumed, err := parseBulkString(r)
 		return Value{Type: bulkString, IsNull: isNull, Str: bstr}, consumed, err
 
 	case array:
-		arr, consumed, err := parseArray(data)
+		arr, consumed, err := parseArray(r)
 		return arr, consumed, err
 
 	default:
