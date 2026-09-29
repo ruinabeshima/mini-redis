@@ -61,11 +61,12 @@ func handleConnection(conn net.Conn) {
 			// Handle command
 			comm, err := handler.ParseCommand(val)
 			if err != nil {
+				conn.Write([]byte("-ERR " + err.Error() + "\r\n"))
 				log.Printf("Handler error: %v\n", err)
-				return
+			} else {
+				returnBytes := handler.ExecuteCommand(comm)
+				conn.Write([]byte(returnBytes))
 			}
-			returnBytes := handler.ExecuteCommand(comm)
-			conn.Write(returnBytes)
 		}
 	}
 }
