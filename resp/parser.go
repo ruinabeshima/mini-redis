@@ -73,6 +73,11 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 		return "", false, 0, ErrInvalidLength
 	}
 
+	// Length too large
+	if intLength > maxBulkLength {
+		return "", false, 0, ErrTooLarge
+	}
+
 	// Null bulk strings (-1)
 	if intLength == -1 {
 		return "", true, 5, nil

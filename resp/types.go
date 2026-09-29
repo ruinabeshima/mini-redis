@@ -17,6 +17,9 @@ const (
 	array        = '*'
 )
 
+// Redis bulk string length limit (512MB)
+const maxBulkLength = 512 * 1024 * 1024
+
 type Value struct {
 	Type   byte   // '+', '-', ':', '$', '*'
 	Str    string // Simple string, simple error, bulk string
@@ -30,6 +33,7 @@ var ErrIncomplete = errors.New("incomplete RESP payload")
 var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
 var ErrEmptyPayload = errors.New("empty payload")
 var ErrUnknownType = errors.New("unknown / invalid command")
+var ErrTooLarge = errors.New("length exceeds limit")
 
 func Parse(data []byte) (Value, int, error) {
 	if len(data) == 0 {
