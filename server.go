@@ -51,6 +51,7 @@ func handleConnection(conn net.Conn) {
 					break
 				} else {
 					log.Printf("Parse error: %v\n", err)
+					conn.Write([]byte("-ERR Protocol error: " + err.Error() + "\r\n"))
 					return
 				}
 			}
