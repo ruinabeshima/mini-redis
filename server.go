@@ -13,6 +13,18 @@ import (
 	"net"
 )
 
+// Helper to write raw byte slices to net.Conn
+func writeBytes(conn net.Conn, data []byte) error {
+	_, err := conn.Write(data)
+	return err
+}
+
+// Helper to write RESP formatted error strings
+func writeError(conn net.Conn, errMsg string) error {
+	_, err := conn.Write([]byte("-ERR " + errMsg + "\r\n"))
+	return err
+}
+
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
@@ -51,22 +63,37 @@ func handleConnection(conn net.Conn) {
 					break
 				} else {
 					log.Printf("Parse error: %v\n", err)
-					conn.Write([]byte("-ERR Protocol error: " + err.Error() + "\r\n"))
+
+					// Send error to client
+					if err := writeError(conn, err.Error()); err != nil {
+						log.Printf("Write error to %s: %v\n", remoteAddr, err)
+					}
+
 					return
 				}
 			}
 
-			// Slice off parsed bytes to advance streamBuffer
+			// Complete network read: Slice off parsed bytes to advance streamBuffer
 			streamBuffer = streamBuffer[bytesConsumed:]
 
 			// Handle command
 			comm, err := handler.ParseCommand(val)
 			if err != nil {
-				conn.Write([]byte("-ERR " + err.Error() + "\r\n"))
 				log.Printf("Handler error: %v\n", err)
+
+				// Send error to client
+				if err := writeError(conn, err.Error()); err != nil {
+					log.Printf("Write error to %s: %v\n", remoteAddr, err)
+					return
+				}
 			} else {
 				returnBytes := handler.ExecuteCommand(comm)
-				conn.Write([]byte(returnBytes))
+
+				// Send bytes to client
+				if err := writeBytes(conn, returnBytes); err != nil {
+					log.Printf("Write error to %s: %v\n", remoteAddr, err)
+					return
+				}
 			}
 		}
 	}
