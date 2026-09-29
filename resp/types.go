@@ -40,36 +40,36 @@ var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
 var ErrUnknownType = errors.New("unknown / invalid command")
 var ErrTooLarge = errors.New("length exceeds limit")
 
-func Parse(r *bufio.Reader) (Value, int, error) {
+func Parse(r *bufio.Reader) (Value, error) {
 
 	// Read and consume the first byte (command type)
 	typeByte, err := r.ReadByte()
 	if err != nil {
-		return Value{}, 0, err
+		return Value{}, err
 	}
 
 	switch typeByte {
 	case simpleString:
-		str, consumed, err := parseSimpleString(r)
-		return Value{Type: simpleString, Str: str}, consumed, err
+		str, err := parseSimpleString(r)
+		return Value{Type: simpleString, Str: str}, err
 
 	case simpleError:
-		errStr, consumed, err := parseSimpleError(r)
-		return Value{Type: simpleError, Str: errStr}, consumed, err
+		errStr, err := parseSimpleError(r)
+		return Value{Type: simpleError, Str: errStr}, err
 
 	case integer:
-		num, consumed, err := parseInteger(r)
-		return Value{Type: integer, Int: num}, consumed, err
+		num, err := parseInteger(r)
+		return Value{Type: integer, Int: num}, err
 
 	case bulkString:
-		bstr, isNull, consumed, err := parseBulkString(r)
-		return Value{Type: bulkString, IsNull: isNull, Str: bstr}, consumed, err
+		bstr, isNull, err := parseBulkString(r)
+		return Value{Type: bulkString, IsNull: isNull, Str: bstr}, err
 
 	case array:
-		arr, consumed, err := parseArray(r)
-		return arr, consumed, err
+		arr, err := parseArray(r)
+		return arr, err
 
 	default:
-		return Value{}, 0, ErrUnknownType
+		return Value{}, ErrUnknownType
 	}
 }
