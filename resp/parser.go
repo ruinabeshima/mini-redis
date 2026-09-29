@@ -5,17 +5,14 @@
 
 package resp
 
-import (
-	"fmt"
-	"strconv"
-)
+import "strconv"
 
 func parseSimpleString(data []byte) (string, int, error) {
 
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
 	if err != nil {
-		return "", 0, fmt.Errorf("%w\n", err)
+		return "", 0, err
 	}
 
 	// Number of bytes processed
@@ -29,7 +26,7 @@ func parseSimpleError(data []byte) (string, int, error) {
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
 	if err != nil {
-		return "", 0, fmt.Errorf("%w\n", err)
+		return "", 0, err
 	}
 
 	consumed := 1 + len(slice) + 2
@@ -42,13 +39,13 @@ func parseInteger(data []byte) (int, int, error) {
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
 	if err != nil {
-		return 0, 0, fmt.Errorf("%w\n", err)
+		return 0, 0, err
 	}
 
 	// Convert bytes to string, then parse to int
 	num, err := strconv.Atoi(string(slice))
 	if err != nil {
-		return 0, 0, fmt.Errorf("%w\n", err)
+		return 0, 0, err
 	}
 
 	consumed := 1 + len(slice) + 2
@@ -61,11 +58,11 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 	// Retrieve string length and convert to int
 	length, err := readLine(data, 1)
 	if err != nil {
-		return "", false, 0, fmt.Errorf("%w\n", err)
+		return "", false, 0, err
 	}
 	intLength, err := strconv.Atoi(string(length))
 	if err != nil {
-		return "", false, 0, fmt.Errorf("%w\n", err)
+		return "", false, 0, err
 	}
 
 	// Negative lengths
@@ -105,11 +102,11 @@ func parseArray(data []byte) (Value, int, error) {
 	// Get length of array
 	length, err := readLine(data, 1)
 	if err != nil {
-		return Value{}, 0, fmt.Errorf("%w\n", err)
+		return Value{}, 0, err
 	}
 	intLength, err := strconv.Atoi(string(length))
 	if err != nil {
-		return Value{}, 0, fmt.Errorf("%w\n", err)
+		return Value{}, 0, err
 	}
 
 	// Invalid length
