@@ -13,7 +13,7 @@ import (
 func parseSimpleString(r *bufio.Reader) (string, int, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
 		return "", 0, err
 	}
@@ -27,7 +27,7 @@ func parseSimpleString(r *bufio.Reader) (string, int, error) {
 func parseSimpleError(r *bufio.Reader) (string, int, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
 		return "", 0, err
 	}
@@ -40,7 +40,7 @@ func parseSimpleError(r *bufio.Reader) (string, int, error) {
 func parseInteger(r *bufio.Reader) (int, int, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -59,7 +59,7 @@ func parseInteger(r *bufio.Reader) (int, int, error) {
 func parseBulkString(r *bufio.Reader) (string, bool, int, error) {
 
 	// Retrieve string length and convert to int
-	length, err := readLine(data, 1)
+	length, err := readLine(r)
 	if err != nil {
 		return "", false, 0, err
 	}
@@ -103,7 +103,7 @@ func parseBulkString(r *bufio.Reader) (string, bool, int, error) {
 func parseArray(r *bufio.Reader) (Value, int, error) {
 
 	// Get length of array
-	length, err := readLine(data, 1)
+	length, err := readLine(r)
 	if err != nil {
 		return Value{}, 0, err
 	}
