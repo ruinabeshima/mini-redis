@@ -17,7 +17,7 @@ func readLine(r *bufio.Reader) ([]byte, error) {
 
 	// Verify that the line ends in \r\n
 	if len(line) < 2 || line[len(line)-2] != '\r' {
-		return nil, errors.New("line must end with CRLF")
+		return nil, ErrNoCRLF
 	}
 
 	return line[:len(line)-2], nil

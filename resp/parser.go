@@ -91,7 +91,7 @@ func parseBulkString(r *bufio.Reader) (string, bool, error) {
 		return "", false, err
 	}
 	if crlfBuf[0] != '\r' || crlfBuf[1] != '\n' {
-		return "", false, errors.New("bulk string missing CRLF ending")
+		return "", false, ErrNoCRLF
 	}
 
 	return string(buf), false, nil

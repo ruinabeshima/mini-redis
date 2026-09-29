@@ -35,10 +35,10 @@ type Value struct {
 }
 
 // Export error types
-var ErrIncomplete = errors.New("incomplete RESP payload")
 var ErrInvalidLength = errors.New("negative lengths less than -1 not permitted")
 var ErrUnknownType = errors.New("unknown / invalid command")
 var ErrTooLarge = errors.New("length exceeds limit")
+var ErrNoCRLF = errors.New("line must end with CRLF")
 
 func Parse(r *bufio.Reader) (Value, error) {
 
