@@ -122,6 +122,11 @@ func parseArray(data []byte) (Value, int, error) {
 		return Value{Type: array, IsNull: true}, 5, nil
 	}
 
+	// Array length too large
+	if intLength > maxArrayLength {
+		return Value{}, 0, ErrTooLarge
+	}
+
 	// Calculate initial offset
 	offset := 1 + len(length) + 2
 	elements := make([]Value, intLength)
