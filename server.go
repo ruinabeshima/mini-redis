@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"errors"
 )
 
 // Helper to write raw byte slices to net.Conn

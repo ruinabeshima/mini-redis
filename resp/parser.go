@@ -7,7 +7,6 @@ package resp
 
 import (
 	"bufio"
-	"errors"
 	"io"
 	"strconv"
 )
