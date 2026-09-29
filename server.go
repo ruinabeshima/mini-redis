@@ -5,12 +5,13 @@
 package main
 
 import (
-	"errors"
+	"bufio"
 	"github.com/ruinabeshima/mini-redis/handler"
 	"github.com/ruinabeshima/mini-redis/resp"
 	"io"
 	"log"
 	"net"
+	"errors"
 )
 
 // Helper to write raw byte slices to net.Conn
@@ -31,69 +32,45 @@ func handleConnection(conn net.Conn) {
 	remoteAddr := conn.RemoteAddr().String() // Remote network address
 	log.Printf("Client connected: %s\n", remoteAddr)
 
-	// Temporary, immediate buffer to store incoming byte stream
-	readBuffer := make([]byte, 1024)
-
-	// Persistent buffer to store FULL byte stream as bytes come in separate chunks
-	var streamBuffer []byte
+	reader := bufio.NewReader(conn)
 
 	for {
+		// Parse byte stream
+		val, err := resp.Parse(reader)
 
-		// Read number of bytes from immediate buffer
-		numBytes, err := conn.Read(readBuffer)
 		if err != nil {
-			if errors.Is(err, io.EOF) { // Ctrl + C handler
+			if errors.Is(err, io.EOF) {
 				log.Printf("Client connection closed gracefully: %s\n", remoteAddr)
-			} else {
-				log.Printf("Message not received: %v\n", err)
+				return
 			}
+
+			log.Printf("Parse error: %v\n", err)
+
+			// Send error to client
+			if err := writeError(conn, err.Error()); err != nil {
+				log.Printf("Write error to %s: %v\n", remoteAddr, err)
+			}
+
 			return
 		}
 
-		// Append new bytes onto persistent buffer
-		streamBuffer = append(streamBuffer, readBuffer[:numBytes]...)
+		// Handle command
+		comm, err := handler.ParseCommand(val)
+		if err != nil {
+			log.Printf("Handler error: %v\n", err)
 
-		for len(streamBuffer) > 0 {
-			// Parse byte stream
-			val, bytesConsumed, err := resp.Parse(streamBuffer)
-
-			if err != nil {
-				if errors.Is(err, resp.ErrIncomplete) {
-					log.Println("Incomplete network read")
-					break
-				} else {
-					log.Printf("Parse error: %v\n", err)
-
-					// Send error to client
-					if err := writeError(conn, err.Error()); err != nil {
-						log.Printf("Write error to %s: %v\n", remoteAddr, err)
-					}
-
-					return
-				}
+			// Send error to client
+			if err := writeError(conn, err.Error()); err != nil {
+				log.Printf("Write error to %s: %v\n", remoteAddr, err)
+				return
 			}
+		} else {
+			returnBytes := handler.ExecuteCommand(comm)
 
-			// Complete network read: Slice off parsed bytes to advance streamBuffer
-			streamBuffer = streamBuffer[bytesConsumed:]
-
-			// Handle command
-			comm, err := handler.ParseCommand(val)
-			if err != nil {
-				log.Printf("Handler error: %v\n", err)
-
-				// Send error to client
-				if err := writeError(conn, err.Error()); err != nil {
-					log.Printf("Write error to %s: %v\n", remoteAddr, err)
-					return
-				}
-			} else {
-				returnBytes := handler.ExecuteCommand(comm)
-
-				// Send bytes to client
-				if err := writeBytes(conn, returnBytes); err != nil {
-					log.Printf("Write error to %s: %v\n", remoteAddr, err)
-					return
-				}
+			// Send bytes to client
+			if err := writeBytes(conn, returnBytes); err != nil {
+				log.Printf("Write error to %s: %v\n", remoteAddr, err)
+				return
 			}
 		}
 	}

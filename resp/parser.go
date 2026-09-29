@@ -1,148 +1,139 @@
 /*
 	Functions to parse each individual data type in RESP2
-	Each function returns the parsed data value, number of bytes processed, and error message if applicable
+	Each function returns the parsed data value and error message if applicable
 */
 
 package resp
 
-import "strconv"
+import (
+	"bufio"
+	"io"
+	"strconv"
+)
 
-func parseSimpleString(data []byte) (string, int, error) {
+func parseSimpleString(r *bufio.Reader) (string, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
-	// Number of bytes processed
-	consumed := 1 + len(slice) + 2
-
-	return string(slice), consumed, nil
+	return string(slice), nil
 }
 
-func parseSimpleError(data []byte) (string, int, error) {
+func parseSimpleError(r *bufio.Reader) (string, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
-	consumed := 1 + len(slice) + 2
-	return string(slice), consumed, nil
+	return string(slice), nil
 }
 
-// int: Integer, int: number of bytes consumed
-func parseInteger(data []byte) (int, int, error) {
+func parseInteger(r *bufio.Reader) (int, error) {
 
 	// Retrieve command slice
-	slice, err := readLine(data, 1)
+	slice, err := readLine(r)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
 
 	// Convert bytes to string, then parse to int
 	num, err := strconv.Atoi(string(slice))
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
 
-	consumed := 1 + len(slice) + 2
-	return num, consumed, nil
+	return num, nil
 }
 
 // 　Bool return value is for isNull (null bulk string)
-func parseBulkString(data []byte) (string, bool, int, error) {
+func parseBulkString(r *bufio.Reader) (string, bool, error) {
 
 	// Retrieve string length and convert to int
-	length, err := readLine(data, 1)
+	length, err := readLine(r)
 	if err != nil {
-		return "", false, 0, err
+		return "", false, err
 	}
 	intLength, err := strconv.Atoi(string(length))
 	if err != nil {
-		return "", false, 0, err
+		return "", false, err
 	}
 
 	// Negative lengths
 	if intLength < -1 {
-		return "", false, 0, ErrInvalidLength
+		return "", false, ErrInvalidLength
 	}
 
 	// Length too large
 	if intLength > maxBulkLength {
-		return "", false, 0, ErrTooLarge
+		return "", false, ErrTooLarge
 	}
 
 	// Null bulk strings (-1)
 	if intLength == -1 {
-		return "", true, 5, nil
+		return "", true, nil
 	}
 
-	// Calculate where the payload starts and ends
-	bulkStart := 1 + len(length) + 2
-	bulkEnd := bulkStart + intLength
-	if bulkEnd+2 > len(data) {
-		return "", false, 0, ErrIncomplete
+	// Read exact length into a buffer of length intLength
+	buf := make([]byte, intLength)
+	if _, err := io.ReadFull(r, buf); err != nil {
+		return "", false, err
 	}
 
-	// Slice the payload directly, and verify CRLF after
-	bulkBytes := data[bulkStart:bulkEnd]
-	if !is_CRLF(data, bulkEnd) {
-		return "", false, 0, ErrIncomplete
+	// Read and validate trailing \r\n
+	crlfBuf := make([]byte, 2)
+	if _, err := io.ReadFull(r, crlfBuf); err != nil {
+		return "", false, err
+	}
+	if crlfBuf[0] != '\r' || crlfBuf[1] != '\n' {
+		return "", false, ErrNoCRLF
 	}
 
-	consumed := 1 + len(length) + 2 + intLength + 2
-	return string(bulkBytes), false, consumed, nil
+	return string(buf), false, nil
 }
 
-func parseArray(data []byte) (Value, int, error) {
+func parseArray(r *bufio.Reader) (Value, error) {
 
 	// Get length of array
-	length, err := readLine(data, 1)
+	length, err := readLine(r)
 	if err != nil {
-		return Value{}, 0, err
+		return Value{}, err
 	}
 	intLength, err := strconv.Atoi(string(length))
 	if err != nil {
-		return Value{}, 0, err
+		return Value{}, err
 	}
 
 	// Invalid length
 	if intLength < -1 {
-		return Value{}, 0, ErrInvalidLength
+		return Value{}, ErrInvalidLength
 	}
 
 	// Null array
 	if intLength == -1 {
-		return Value{Type: array, IsNull: true}, 5, nil
+		return Value{Type: array, IsNull: true}, nil
 	}
 
 	// Array length too large
 	if intLength > maxArrayLength {
-		return Value{}, 0, ErrTooLarge
+		return Value{}, ErrTooLarge
 	}
 
-	// Calculate initial offset
-	offset := 1 + len(length) + 2
 	elements := make([]Value, intLength)
 
 	//　Recursively parse each child element
 	for i := 0; i < intLength; i++ {
-		// Ran out of data before all elements arrived
-		if offset >= len(data) {
-			return Value{}, 0, ErrIncomplete
-		}
-
-		val, consumed, err := Parse(data[offset:])
+		val, err := Parse(r)
 		if err != nil {
-			return Value{}, 0, err
+			return Value{}, err
 		}
 
 		elements[i] = val
-		offset += consumed
 	}
 
-	return Value{Type: array, Array: elements}, offset, nil
+	return Value{Type: array, Array: elements}, nil
 }
