@@ -7,6 +7,7 @@ package resp
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"strconv"
 )
@@ -90,7 +91,7 @@ func parseBulkString(r *bufio.Reader) (string, bool, error) {
 		return "", false, err
 	}
 	if crlfBuf[0] != '\r' || crlfBuf[1] != '\n' {
-		return "", false, fmt.Errorf("bulk string missing CRLF ending")
+		return "", false, errors.New("bulk string missing CRLF ending")
 	}
 
 	return string(buf), false, nil
