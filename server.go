@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"github.com/ruinabeshima/mini-redis/handler"
 	"github.com/ruinabeshima/mini-redis/resp"
+	"io"
 	"log"
 	"net"
 )
@@ -37,6 +38,11 @@ func handleConnection(conn net.Conn) {
 		val, err := resp.Parse(reader)
 
 		if err != nil {
+			if errors.Is(err, io.EOF) {
+				log.Printf("Client connection closed gracefully: %s\n", remoteAddr)
+				return
+			}
+
 			log.Printf("Parse error: %v\n", err)
 
 			// Send error to client
