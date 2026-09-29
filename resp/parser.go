@@ -89,7 +89,7 @@ func parseBulkString(r *bufio.Reader) (string, bool, error) {
 	if _, err := io.ReadFull(r, crlfBuf); err != nil {
 		return "", false, err
 	}
-	if crlf[0] != '\r' || crlf[1] != '\n' {
+	if crlfBuf[0] != '\r' || crlfBuf[1] != '\n' {
 		return "", false, fmt.Errorf("bulk string missing CRLF ending")
 	}
 
