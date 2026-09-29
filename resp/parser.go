@@ -7,6 +7,7 @@ package resp
 
 import (
 	"bufio"
+	"io"
 	"strconv"
 )
 
@@ -77,20 +78,22 @@ func parseBulkString(r *bufio.Reader) (string, bool, error) {
 		return "", true, nil
 	}
 
-	// Calculate where the payload starts and ends
-	bulkStart := 1 + len(length) + 2
-	bulkEnd := bulkStart + intLength
-	if bulkEnd+2 > len(data) {
-		return "", false, ErrIncomplete
+	// Read exact length into a buffer of length intLength
+	buf := make([]byte, intLength)
+	if _, err := io.ReadFull(r, buf); err != nil {
+		return "", false, err
 	}
 
-	// Slice the payload directly, and verify CRLF after
-	bulkBytes := data[bulkStart:bulkEnd]
-	if !is_CRLF(data, bulkEnd) {
-		return "", false, ErrIncomplete
+	// Read and validate trailing \r\n
+	crlfBuf := make([]byte, 2)
+	if _, err := io.ReadFull(r, crlfBuf); err != nil {
+		return "", false, err
+	}
+	if crlf[0] != '\r' || crlf[1] != '\n' {
+		return "", false, fmt.Errorf("bulk string missing CRLF ending")
 	}
 
-	return string(bulkBytes), false, nil
+	return string(buf), false, nil
 }
 
 func parseArray(r *bufio.Reader) (Value, error) {
