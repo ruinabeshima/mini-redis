@@ -5,9 +5,12 @@
 
 package resp
 
-import "strconv"
+import (
+	"bufio"
+	"strconv"
+)
 
-func parseSimpleString(data []byte) (string, int, error) {
+func parseSimpleString(r *bufio.Reader) (string, int, error) {
 
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
@@ -21,7 +24,7 @@ func parseSimpleString(data []byte) (string, int, error) {
 	return string(slice), consumed, nil
 }
 
-func parseSimpleError(data []byte) (string, int, error) {
+func parseSimpleError(r *bufio.Reader) (string, int, error) {
 
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
@@ -34,7 +37,7 @@ func parseSimpleError(data []byte) (string, int, error) {
 }
 
 // int: Integer, int: number of bytes consumed
-func parseInteger(data []byte) (int, int, error) {
+func parseInteger(r *bufio.Reader) (int, int, error) {
 
 	// Retrieve command slice
 	slice, err := readLine(data, 1)
@@ -53,7 +56,7 @@ func parseInteger(data []byte) (int, int, error) {
 }
 
 // 　Bool return value is for isNull (null bulk string)
-func parseBulkString(data []byte) (string, bool, int, error) {
+func parseBulkString(r *bufio.Reader) (string, bool, int, error) {
 
 	// Retrieve string length and convert to int
 	length, err := readLine(data, 1)
@@ -97,7 +100,7 @@ func parseBulkString(data []byte) (string, bool, int, error) {
 	return string(bulkBytes), false, consumed, nil
 }
 
-func parseArray(data []byte) (Value, int, error) {
+func parseArray(r *bufio.Reader) (Value, int, error) {
 
 	// Get length of array
 	length, err := readLine(data, 1)
