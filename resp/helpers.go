@@ -1,38 +1,24 @@
-/*
-	Helper functions to verify CRLF \r\n and read lines of data
-*/
-
 package resp
 
-func is_CRLF(byteArray []byte, pointer int) bool {
-
-	// Pointer out of bounds
-	if pointer+1 >= len(byteArray) || pointer < 0 {
-		return false
-	}
-
-	// Check if there is a Carriage Return Line Feed (\r\n)
-	if byteArray[pointer] == '\r' && byteArray[pointer+1] == '\n' {
-		return true
-	}
-
-	return false
-}
+import (
+	"bufio"
+	"errors"
+)
 
 /*
-Finds \r\n and returns the slice of bytes from "start" up to (but not including) \r\n
-For simple strings, simple errors, integers
+	Helper function to read line of data until trailing \n, and verify that it ends with \r\n
 */
-func readLine(data []byte, start int) ([]byte, error) {
-	end := start
-	for end < len(data) && !is_CRLF(data, end) {
-		end += 1
+func readLine(r *bufio.Reader) ([]byte, error) {
+	// Read up to trailing \n 
+	line, err := r.ReadBytes('\n')
+	if err != nil {
+		return nil, err 
 	}
 
-	// \r\n not included
-	if end == len(data) {
-		return nil, ErrIncomplete
+	// Verify that the line ends in \r\n
+	if len(line) < 2 || line[len(line)-2] != '\r' {
+		return nil, errors.New("line must end with CRLF")
 	}
 
-	return data[start:end], nil
+	return line[:len(line)-2], nil
 }
