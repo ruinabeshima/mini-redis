@@ -14,6 +14,7 @@ var operations = map[string]handlerFunc{
 	"PING": handlePing,
 	"ECHO": handleEcho,
 	"SET":  handleSet,
+	"GET":  handleGet,
 }
 
 func ExecuteCommand(command Command) []byte {

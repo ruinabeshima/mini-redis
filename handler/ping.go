@@ -39,3 +39,19 @@ func handleSet(args []string) []byte {
 	store.KVStore[key] = value
 	return []byte("+OK\r\n")
 }
+
+// Retrieves from key-value store
+func handleGet(args []string) []byte {
+	if len(args) != 1 {
+		return []byte("-ERR wrong number of arguments for 'set' command\r\n")
+	}
+
+	key := args[0]
+	val, ok := store.KVStore[key]
+
+	if ok != true {
+		return []byte("$-1\r\n") // Return null bulk string
+	}
+
+	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(val), val))
+}
