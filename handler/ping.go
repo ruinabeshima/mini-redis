@@ -1,6 +1,9 @@
 package handler
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/ruinabeshima/mini-redis/store"
+)
 
 // Tests server availability (health check)
 func handlePing(args []string) []byte {
@@ -23,4 +26,16 @@ func handleEcho(args []string) []byte {
 
 	// Bulk string with argument
 	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0]), args[0]))
+}
+
+// Adds to key-value store
+func handleSet(args []string) []byte {
+	if len(args) != 2 {
+		return []byte("-ERR wrong number of arguments for 'set' command\r\n")
+	}
+
+	key := args[0]
+	value := args[1]
+	store.KVStore[key] = value
+	return []byte("+OK\r\n")
 }

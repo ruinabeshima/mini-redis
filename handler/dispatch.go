@@ -13,6 +13,7 @@ type handlerFunc func(args []string) []byte
 var operations = map[string]handlerFunc{
 	"PING": handlePing,
 	"ECHO": handleEcho,
+	"SET":  handleSet,
 }
 
 func ExecuteCommand(command Command) []byte {
