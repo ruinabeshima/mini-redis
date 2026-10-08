@@ -20,13 +20,13 @@ type Command struct {
 func ParseCommand(val resp.Value) (Command, error) {
 
 	// Command must be an array of bulk strings
-	if val.Type != '*' || val.IsNull || len(val.Array) == 0 {
+	if val.Type != resp.TypeArray || val.IsNull || len(val.Array) == 0 {
 		return Command{}, errors.New("expected non-empty array of bulk strings")
 	}
 
 	args := make([]string, len(val.Array))
 	for index, element := range val.Array {
-		if element.Type != '$' || element.IsNull {
+		if element.Type != resp.BulkString || element.IsNull {
 			return Command{}, errors.New("command arguments must be bulk string")
 		}
 

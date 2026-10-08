@@ -13,11 +13,11 @@ import (
 
 // Data types correspond to symbol of first byte
 const (
-	simpleString = '+'
-	simpleError  = '-'
-	integer      = ':'
-	bulkString   = '$'
-	array        = '*'
+	SimpleString byte = '+'
+	SimpleError  byte = '-'
+	Integer      byte = ':'
+	BulkString   byte = '$'
+	TypeArray    byte = '*'
 )
 
 // Redis bulk string length limit (512MB)
@@ -49,23 +49,23 @@ func Parse(r *bufio.Reader) (Value, error) {
 	}
 
 	switch typeByte {
-	case simpleString:
+	case SimpleString:
 		str, err := parseSimpleString(r)
-		return Value{Type: simpleString, Str: str}, err
+		return Value{Type: SimpleString, Str: str}, err
 
-	case simpleError:
+	case SimpleError:
 		errStr, err := parseSimpleError(r)
-		return Value{Type: simpleError, Str: errStr}, err
+		return Value{Type: SimpleError, Str: errStr}, err
 
-	case integer:
+	case Integer:
 		num, err := parseInteger(r)
-		return Value{Type: integer, Int: num}, err
+		return Value{Type: Integer, Int: num}, err
 
-	case bulkString:
+	case BulkString:
 		bstr, isNull, err := parseBulkString(r)
-		return Value{Type: bulkString, IsNull: isNull, Str: bstr}, err
+		return Value{Type: BulkString, IsNull: isNull, Str: bstr}, err
 
-	case array:
+	case TypeArray:
 		arr, err := parseArray(r)
 		return arr, err
 

@@ -115,7 +115,7 @@ func parseArray(r *bufio.Reader) (Value, error) {
 
 	// Null array
 	if intLength == -1 {
-		return Value{Type: array, IsNull: true}, nil
+		return Value{Type: TypeArray, IsNull: true}, nil
 	}
 
 	// Array length too large
@@ -135,5 +135,5 @@ func parseArray(r *bufio.Reader) (Value, error) {
 		elements[i] = val
 	}
 
-	return Value{Type: array, Array: elements}, nil
+	return Value{Type: TypeArray, Array: elements}, nil
 }

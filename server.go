@@ -6,12 +6,12 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"github.com/ruinabeshima/mini-redis/handler"
 	"github.com/ruinabeshima/mini-redis/resp"
 	"io"
 	"log"
 	"net"
-	"errors"
 )
 
 // Helper to write raw byte slices to net.Conn
