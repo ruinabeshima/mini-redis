@@ -12,36 +12,40 @@ Data types are determined by the first byte of the stream.
 - Arrays (*)
 
 
-## Architecture 
+## Architecture
 
-- `types.go`: The main entry point of the package.  
-    - Defines constants for data and error types. 
-    - Contains `Parse()` which consumes the first byte of the stream and runs `switch` logic to distinguish between data types. 
-    - Calls specific `parser.go` functions corresponding to data type. 
-    - The `Parse()` function returns a struct `Value`: 
-    ``` 
-        type Value struct {
-            Type   byte   // '+', '-', ':', '$', '*'
-            Str    string // Simple string, simple error, bulk string
-            Int    int
-            Array  []Value
-            IsNull bool // Null bulk strings, null array
-        }
+* **`types.go`**: The main entry point of the package.
+  * Defines constants for data and error types.
+  * Contains `Parse()` which consumes the first byte of the stream and runs `switch` logic to distinguish between data types.
+  * Calls specific `parser.go` functions corresponding to the data type.
+  * The `Parse()` function returns a struct `Value`:
+    ```go
+    type Value struct {
+        Type   byte   // '+', '-', ':', '$', '*'
+        Str    string // Simple string, simple error, bulk string
+        Int    int
+        Array  []Value
+        IsNull bool // Null bulk strings, null array
+    }
     ```
-- `parser.go`: Contains functions to parse byte stream according to data type. 
-    - Functions included: 
-        - `parseSimpleString()`
-        - `parseSimpleError()`
-        - `parseInteger()`
-        - `parseBulkString()`
-        - `parseArray()`
-    - Each parser function takes in a Bufio reader as a parameter, and returns the decoded value of the corresponding data type to put into struct `Value`. 
-    - `parseArray()` recursively parses each child element by calling `Parse()`. 
-- `helpers.go`: Contains helper function `readLine()` which reads line of data until trailing \n, and verifies that it ends with \r\n. 
-- `parser_test.go`: Runs table-driven tests for the `resp` package. 100% coverage reached. 
 
-### Architecture Diagram 
-```
+* **`parser.go`**: Contains functions to parse byte streams according to data type.
+  * Functions included:
+    * `parseSimpleString()`
+    * `parseSimpleError()`
+    * `parseInteger()`
+    * `parseBulkString()`
+    * `parseArray()`
+  * Each parser function takes in a `bufio.Reader` as a parameter and returns the decoded value of the corresponding data type to put into the struct `Value`.
+  * `parseArray()` recursively parses each child element by calling `Parse()`.
+
+* **`helpers.go`**: Contains the helper function `readLine()`, which reads a line of data until a trailing newline and verifies that it ends with `\r\n`.
+
+* **`parser_test.go`**: Runs table-driven tests for the `resp` package (100% coverage reached).
+
+### Architecture Diagram
+
+```text
      *bufio.Reader (wraps net.Conn)
             │
             ▼
@@ -57,12 +61,6 @@ Data types are determined by the first byte of the stream.
                   │  calls Parse(r) once per element
                   └─ (nested arrays just work)
 ```
-
-## Error types 
-- `ErrInvalidLength`: Negative lengths (for bulk strings and arrays) less than -1 are not permitted
-- `ErrUnknownType`: Unknown / invalid command 
-- `ErrTooLarge`: Length exceeds limit (512MB for bulk strings, 1024000 array elements)
-- `ErrNoCRLF`: No trailing CRLF (\r\n)
 
 ## Limits 
 The parser sets a limit for the length of bulk strings (512MB) and the number of array elements (1,024,000)
