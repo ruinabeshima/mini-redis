@@ -43,7 +43,7 @@ func handleSet(args []string) []byte {
 // Retrieves from key-value store
 func handleGet(args []string) []byte {
 	if len(args) != 1 {
-		return []byte("-ERR wrong number of arguments for 'set' command\r\n")
+		return []byte("-ERR wrong number of arguments for 'get' command\r\n")
 	}
 
 	key := args[0]
