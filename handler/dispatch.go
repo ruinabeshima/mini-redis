@@ -5,20 +5,32 @@
 
 package handler
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/ruinabeshima/mini-redis/store"
+)
 
 // Hashmap with string keys and function values
 type handlerFunc func(args []string) []byte
 
-var operations = map[string]handlerFunc{
-	"PING": handlePing,
-	"ECHO": handleEcho,
-	"SET":  handleSet,
-	"GET":  handleGet,
+type Handler struct {
+	store      *store.Store
+	operations map[string]handlerFunc
 }
 
-func ExecuteCommand(command Command) []byte {
-	fn, exists := operations[command.Name]
+func New(s *store.Store) *Handler {
+	h := &Handler{store: s}
+	h.operations = map[string]handlerFunc{
+		"PING": h.handlePing,
+		"ECHO": h.handleEcho,
+		"SET":  h.handleSet,
+		"GET":  h.handleGet,
+	}
+	return h
+}
+
+func (h *Handler) ExecuteCommand(command Command) []byte {
+	fn, exists := h.operations[command.Name]
 
 	if !exists {
 		return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", command.Name))

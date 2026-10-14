@@ -1,12 +1,9 @@
 package handler
 
-import (
-	"fmt"
-	"github.com/ruinabeshima/mini-redis/store"
-)
+import "fmt"
 
 // Tests server availability (health check)
-func handlePing(args []string) []byte {
+func (h *Handler) handlePing(args []string) []byte {
 	if len(args) == 0 {
 		return []byte("+PONG\r\n")
 	}
@@ -19,7 +16,7 @@ func handlePing(args []string) []byte {
 }
 
 // Tests data transmission with specific message
-func handleEcho(args []string) []byte {
+func (h *Handler) handleEcho(args []string) []byte {
 	if len(args) == 0 || len(args) > 1 {
 		return []byte("-ERR wrong number of arguments for 'echo' command\r\n")
 	}
@@ -29,26 +26,25 @@ func handleEcho(args []string) []byte {
 }
 
 // Adds to key-value store
-func handleSet(args []string) []byte {
+func (h *Handler) handleSet(args []string) []byte {
 	if len(args) != 2 {
 		return []byte("-ERR wrong number of arguments for 'set' command\r\n")
 	}
 
 	key := args[0]
 	value := args[1]
-	store.KVStore[key] = value
+	h.store.Set(key, value)
 	return []byte("+OK\r\n")
 }
 
 // Retrieves from key-value store
-func handleGet(args []string) []byte {
+func (h *Handler) handleGet(args []string) []byte {
 	if len(args) != 1 {
 		return []byte("-ERR wrong number of arguments for 'get' command\r\n")
 	}
 
 	key := args[0]
-	val, ok := store.KVStore[key]
-
+	val, ok := h.store.Get(key)
 	if ok != true {
 		return []byte("$-1\r\n") // Return null bulk string
 	}

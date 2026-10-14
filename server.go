@@ -14,7 +14,7 @@ import (
 	"net"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, h *handler.Handler) {
 	defer conn.Close()
 
 	remoteAddr := conn.RemoteAddr().String() // Remote network address
@@ -53,7 +53,7 @@ func handleConnection(conn net.Conn) {
 				return
 			}
 		} else {
-			returnBytes := handler.ExecuteCommand(comm)
+			returnBytes := h.ExecuteCommand(comm)
 
 			// Send bytes to client
 			if err := writeBytes(conn, returnBytes); err != nil {

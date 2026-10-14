@@ -2,4 +2,36 @@
 
 package store
 
-var KVStore = make(map[string]string)
+import "sync"
+
+type Store struct {
+	mu   sync.RWMutex
+	data map[string]string
+}
+
+/*
+Acts as a constructor for the Store struct
+Initialises the map (an uninitialised one is nil, and cannot be used)
+make() stores the map in memory
+Returns a ready to use pointer *Store
+*/
+func New() *Store {
+	return &Store{data: make(map[string]string)}
+}
+
+func (s *Store) Set(key, value string) {
+	// Exclusive lock: Only one goroutine can hold a write lock
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.data[key] = value
+}
+
+func (s *Store) Get(key string) (string, bool) {
+	// Multiple readers can read concurrently
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	v, ok := s.data[key]
+	return v, ok
+}

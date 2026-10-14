@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/ruinabeshima/mini-redis/handler"
+	"github.com/ruinabeshima/mini-redis/store"
 	"log"
 	"net"
 	"os"
@@ -18,6 +20,10 @@ func main() {
 	fmt.Println("Server started on PORT 6379")
 	defer ln.Close()
 
+	// Define handler and KV Store
+	s := store.New()
+	h := handler.New(s)
+
 	for {
 
 		// Client connection
@@ -27,7 +33,7 @@ func main() {
 			continue
 		}
 
-		go handleConnection(conn)
+		go handleConnection(conn, h)
 	}
 
 }
