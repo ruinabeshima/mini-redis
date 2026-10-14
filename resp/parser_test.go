@@ -46,17 +46,17 @@ func TestParse(t *testing.T) {
 		{
 			name:        "simple string",
 			input:       []byte("+OK\r\n"),
-			expectedVal: Value{Type: simpleString, Str: "OK"},
+			expectedVal: Value{Type: SimpleString, Str: "OK"},
 		},
 		{
 			name:        "empty simple string",
 			input:       []byte("+\r\n"),
-			expectedVal: Value{Type: simpleString, Str: ""},
+			expectedVal: Value{Type: SimpleString, Str: ""},
 		},
 		{
 			name:              "simple string with trailing data only consumes first value",
 			input:             []byte("+OK\r\n+PONG\r\n"),
-			expectedVal:       Value{Type: simpleString, Str: "OK"},
+			expectedVal:       Value{Type: SimpleString, Str: "OK"},
 			expectedRemaining: "+PONG\r\n",
 		},
 		{
@@ -79,7 +79,7 @@ func TestParse(t *testing.T) {
 		{
 			name:        "simple error",
 			input:       []byte("-ERR unknown command\r\n"),
-			expectedVal: Value{Type: simpleError, Str: "ERR unknown command"},
+			expectedVal: Value{Type: SimpleError, Str: "ERR unknown command"},
 		},
 		{
 			name:          "simple error missing CRLF",
@@ -91,22 +91,22 @@ func TestParse(t *testing.T) {
 		{
 			name:        "positive integer",
 			input:       []byte(":1000\r\n"),
-			expectedVal: Value{Type: integer, Int: 1000},
+			expectedVal: Value{Type: Integer, Int: 1000},
 		},
 		{
 			name:        "negative integer",
 			input:       []byte(":-42\r\n"),
-			expectedVal: Value{Type: integer, Int: -42},
+			expectedVal: Value{Type: Integer, Int: -42},
 		},
 		{
 			name:        "explicit plus sign integer",
 			input:       []byte(":+5\r\n"),
-			expectedVal: Value{Type: integer, Int: 5},
+			expectedVal: Value{Type: Integer, Int: 5},
 		},
 		{
 			name:        "zero integer",
 			input:       []byte(":0\r\n"),
-			expectedVal: Value{Type: integer, Int: 0},
+			expectedVal: Value{Type: Integer, Int: 0},
 		},
 		{
 			name:          "integer missing CRLF",
@@ -133,27 +133,27 @@ func TestParse(t *testing.T) {
 		{
 			name:        "bulk string",
 			input:       []byte("$5\r\nhello\r\n"),
-			expectedVal: Value{Type: bulkString, Str: "hello"},
+			expectedVal: Value{Type: BulkString, Str: "hello"},
 		},
 		{
 			name:        "empty bulk string",
 			input:       []byte("$0\r\n\r\n"),
-			expectedVal: Value{Type: bulkString, Str: ""},
+			expectedVal: Value{Type: BulkString, Str: ""},
 		},
 		{
 			name:        "bulk string containing CRLF is binary safe",
 			input:       []byte("$7\r\nfoo\r\nba\r\n"),
-			expectedVal: Value{Type: bulkString, Str: "foo\r\nba"},
+			expectedVal: Value{Type: BulkString, Str: "foo\r\nba"},
 		},
 		{
 			name:        "bulk string with multi-digit length",
 			input:       []byte("$11\r\nhello world\r\n"),
-			expectedVal: Value{Type: bulkString, Str: "hello world"},
+			expectedVal: Value{Type: BulkString, Str: "hello world"},
 		},
 		{
 			name:        "null bulk string",
 			input:       []byte("$-1\r\n"),
-			expectedVal: Value{Type: bulkString, IsNull: true},
+			expectedVal: Value{Type: BulkString, IsNull: true},
 		},
 		{
 			name:          "bulk string missing length CRLF",
@@ -210,43 +210,43 @@ func TestParse(t *testing.T) {
 		{
 			name:        "empty array",
 			input:       []byte("*0\r\n"),
-			expectedVal: Value{Type: array, Array: []Value{}},
+			expectedVal: Value{Type: TypeArray, Array: []Value{}},
 		},
 		{
 			name:        "null array",
 			input:       []byte("*-1\r\n"),
-			expectedVal: Value{Type: array, IsNull: true},
+			expectedVal: Value{Type: TypeArray, IsNull: true},
 		},
 		{
 			name:  "array of bulk strings",
 			input: []byte("*2\r\n$4\r\nECHO\r\n$5\r\nhello\r\n"),
-			expectedVal: Value{Type: array, Array: []Value{
-				{Type: bulkString, Str: "ECHO"},
-				{Type: bulkString, Str: "hello"},
+			expectedVal: Value{Type: TypeArray, Array: []Value{
+				{Type: BulkString, Str: "ECHO"},
+				{Type: BulkString, Str: "hello"},
 			}},
 		},
 		{
 			name:  "array of mixed types",
 			input: []byte("*3\r\n:1\r\n+OK\r\n$-1\r\n"),
-			expectedVal: Value{Type: array, Array: []Value{
-				{Type: integer, Int: 1},
-				{Type: simpleString, Str: "OK"},
-				{Type: bulkString, IsNull: true},
+			expectedVal: Value{Type: TypeArray, Array: []Value{
+				{Type: Integer, Int: 1},
+				{Type: SimpleString, Str: "OK"},
+				{Type: BulkString, IsNull: true},
 			}},
 		},
 		{
 			name:  "nested array",
 			input: []byte("*2\r\n*1\r\n:1\r\n+OK\r\n"),
-			expectedVal: Value{Type: array, Array: []Value{
-				{Type: array, Array: []Value{{Type: integer, Int: 1}}},
-				{Type: simpleString, Str: "OK"},
+			expectedVal: Value{Type: TypeArray, Array: []Value{
+				{Type: TypeArray, Array: []Value{{Type: Integer, Int: 1}}},
+				{Type: SimpleString, Str: "OK"},
 			}},
 		},
 		{
 			name:  "array with trailing data only consumes first value",
 			input: []byte("*1\r\n+PING\r\n*1\r\n+PING\r\n"),
-			expectedVal: Value{Type: array, Array: []Value{
-				{Type: simpleString, Str: "PING"},
+			expectedVal: Value{Type: TypeArray, Array: []Value{
+				{Type: SimpleString, Str: "PING"},
 			}},
 			expectedRemaining: "*1\r\n+PING\r\n",
 		},
