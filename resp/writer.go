@@ -84,7 +84,7 @@ func (buf *Writer) writeBulkString(v Value) error {
 func (buf *Writer) writeArray(v Value) error {
 	arr := v.Array
 	if v.IsNull {
-		_, err := buf.w.WriteString("*-1\r\n") // Null array 
+		_, err := buf.w.WriteString("*-1\r\n") // Null array
 		return err
 	}
 	if _, err := buf.w.WriteString(fmt.Sprintf("*%d\r\n", len(arr))); err != nil {
