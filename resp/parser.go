@@ -33,7 +33,7 @@ func parseSimpleError(r *bufio.Reader) (string, error) {
 	return string(slice), nil
 }
 
-func parseInteger(r *bufio.Reader) (int, error) {
+func parseInteger(r *bufio.Reader) (int64, error) {
 
 	// Retrieve command slice
 	slice, err := readLine(r)
@@ -42,7 +42,7 @@ func parseInteger(r *bufio.Reader) (int, error) {
 	}
 
 	// Convert bytes to string, then parse to int
-	num, err := strconv.Atoi(string(slice))
+	num, err := strconv.ParseInt(string(slice), 10, 64)
 	if err != nil {
 		return 0, err
 	}

@@ -1,53 +1,48 @@
 package handler
 
-import "fmt"
+import "github.com/ruinabeshima/mini-redis/resp"
 
-// Tests server availability (health check)
-func (h *Handler) handlePing(args []string) []byte {
+func (h *Handler) handlePing(args []string) resp.Value {
 	if len(args) == 0 {
-		return []byte("+PONG\r\n")
+		return resp.Value{Type: resp.SimpleString, Str: "PONG"}
 	}
 	if len(args) > 1 {
-		return []byte("-ERR wrong number of arguments for 'ping' command\r\n")
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'ping' command"}
 	}
 
 	// Bulk string with argument
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0]), args[0]))
+	return resp.Value{Type: resp.BulkString, Str: args[0]}
 }
 
-// Tests data transmission with specific message
-func (h *Handler) handleEcho(args []string) []byte {
+func (h *Handler) handleEcho(args []string) resp.Value {
 	if len(args) == 0 || len(args) > 1 {
-		return []byte("-ERR wrong number of arguments for 'echo' command\r\n")
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'echo' command"}
 	}
 
-	// Bulk string with argument
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0]), args[0]))
+	return resp.Value{Type: resp.BulkString, Str: args[0]}
 }
 
-// Adds to key-value store
-func (h *Handler) handleSet(args []string) []byte {
+func (h *Handler) handleSet(args []string) resp.Value {
 	if len(args) != 2 {
-		return []byte("-ERR wrong number of arguments for 'set' command\r\n")
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'set' command"}
 	}
 
 	key := args[0]
 	value := args[1]
 	h.store.Set(key, value)
-	return []byte("+OK\r\n")
+	return resp.Value{Type: resp.SimpleString, Str: "OK"}
 }
 
-// Retrieves from key-value store
-func (h *Handler) handleGet(args []string) []byte {
+func (h *Handler) handleGet(args []string) resp.Value {
 	if len(args) != 1 {
-		return []byte("-ERR wrong number of arguments for 'get' command\r\n")
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'get' command"}
 	}
 
 	key := args[0]
 	val, ok := h.store.Get(key)
-	if ok != true {
-		return []byte("$-1\r\n") // Return null bulk string
+	if !ok {
+		return resp.Value{Type: resp.BulkString, IsNull: true} // Null bulk string
 	}
 
-	return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(val), val))
+	return resp.Value{Type: resp.BulkString, Str: val}
 }

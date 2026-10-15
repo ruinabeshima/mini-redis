@@ -21,6 +21,8 @@ func handleConnection(conn net.Conn, h *handler.Handler) {
 	log.Printf("Client connected: %s\n", remoteAddr)
 
 	reader := bufio.NewReader(conn)
+	writer := resp.NewWriter(conn)
+	defer writer.Flush()
 
 	for {
 		// Parse byte stream
@@ -32,31 +34,32 @@ func handleConnection(conn net.Conn, h *handler.Handler) {
 				return
 			}
 
-			log.Printf("Parse error: %v\n", err)
+			log.Printf("Parse error: %v\n", err) // Log to server
 
-			// Send error to client
-			if err := writeError(conn, err.Error()); err != nil {
+			if err := writer.WriteValue(resp.Value{Type: resp.SimpleError, Str: "ERR " + err.Error()}); err != nil {
 				log.Printf("Write error to %s: %v\n", remoteAddr, err)
 			}
-
 			return
 		}
 
 		// Handle command
 		comm, err := handler.ParseCommand(val)
+		var reply resp.Value
 		if err != nil {
 			log.Printf("Handler error: %v\n", err)
-
-			// Send error to client
-			if err := writeError(conn, err.Error()); err != nil {
-				log.Printf("Write error to %s: %v\n", remoteAddr, err)
-				return
-			}
+			reply = resp.Value{Type: resp.SimpleError, Str: "ERR " + err.Error()}
 		} else {
-			returnBytes := h.ExecuteCommand(comm)
+			reply = h.ExecuteCommand(comm)
+		}
 
-			// Send bytes to client
-			if err := writeBytes(conn, returnBytes); err != nil {
+		if err := writer.WriteValue(reply); err != nil {
+			log.Printf("Write error to %s: %v\n", remoteAddr, err)
+			return
+		}
+
+		// Flush if nothing else is pipelined
+		if reader.Buffered() == 0 {
+			if err := writer.Flush(); err != nil {
 				log.Printf("Write error to %s: %v\n", remoteAddr, err)
 				return
 			}

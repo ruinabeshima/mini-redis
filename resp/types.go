@@ -29,7 +29,7 @@ const maxArrayLength = 1024000
 type Value struct {
 	Type   byte   // '+', '-', ':', '$', '*'
 	Str    string // Simple string, simple error, bulk string
-	Int    int
+	Int    int64
 	Array  []Value
 	IsNull bool // Null bulk strings, null array
 }
