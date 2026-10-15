@@ -7,11 +7,12 @@ package handler
 
 import (
 	"fmt"
+	"github.com/ruinabeshima/mini-redis/resp"
 	"github.com/ruinabeshima/mini-redis/store"
 )
 
 // Hashmap with string keys and function values
-type handlerFunc func(args []string) []byte
+type handlerFunc func(args []string) resp.Value
 
 type Handler struct {
 	store      *store.Store
@@ -29,11 +30,11 @@ func New(s *store.Store) *Handler {
 	return h
 }
 
-func (h *Handler) ExecuteCommand(command Command) []byte {
+func (h *Handler) ExecuteCommand(command Command) resp.Value {
 	fn, exists := h.operations[command.Name]
 
 	if !exists {
-		return []byte(fmt.Sprintf("-ERR unknown command '%s'\r\n", command.Name))
+		return resp.Value{Type: resp.SimpleError, Str: fmt.Sprintf("ERR unknown command '%s'", command.Name)}
 	}
 
 	return fn(command.Args)
