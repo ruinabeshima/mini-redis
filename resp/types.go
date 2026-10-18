@@ -20,8 +20,11 @@ const (
 	TypeArray    byte = '*'
 )
 
-// Redis bulk string length limit (512MB)
-const maxBulkLength = 512 * 1024 * 1024
+/* 
+	Redis official bulk string length limit is 512MB, 
+	but it is set to 1MB as there are no problems so far
+*/
+const maxBulkLength = 1 * 1024 * 1024
 
 // Redis array element limit (1024000 elements)
 const maxArrayLength = 1024000
