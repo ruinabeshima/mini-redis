@@ -54,8 +54,22 @@ func (h *Handler) handleDel(args []string) resp.Value {
 
 	count := 0
 	for _, key := range args {
-		res := h.store.Del(key)
-		if res {
+		if h.store.Del(key) {
+			count++
+		}
+	}
+
+	return resp.Value{Type: resp.Integer, Int: int64(count)}
+}
+
+func (h *Handler) handleExists(args []string) resp.Value {
+	if len(args) == 0 {
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'exists' command"}
+	}
+
+	count := 0
+	for _, key := range args {
+		if h.store.Exists(key) {
 			count++
 		}
 	}

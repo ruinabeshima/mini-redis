@@ -22,11 +22,12 @@ type Handler struct {
 func New(s *store.Store) *Handler {
 	h := &Handler{store: s}
 	h.operations = map[string]handlerFunc{
-		"PING": h.handlePing,
-		"ECHO": h.handleEcho,
-		"SET":  h.handleSet,
-		"GET":  h.handleGet,
-		"DEL":  h.handleDel,
+		"PING":   h.handlePing,
+		"ECHO":   h.handleEcho,
+		"SET":    h.handleSet,
+		"GET":    h.handleGet,
+		"DEL":    h.handleDel,
+		"EXISTS": h.handleExists,
 	}
 	return h
 }

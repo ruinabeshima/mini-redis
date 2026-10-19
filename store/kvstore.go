@@ -44,3 +44,11 @@ func (s *Store) Del(key string) bool {
 	delete(s.data, key) // delete on a missing key is a safe no-op
 	return exists
 }
+
+func (s *Store) Exists(key string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	_, exists := s.data[key]
+	return exists
+}

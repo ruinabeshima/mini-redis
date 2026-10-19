@@ -21,8 +21,8 @@ const (
 )
 
 /*
-	Redis official bulk string length limit is 512MB,
-	but it is set to 1MB as there are no problems so far
+Redis official bulk string length limit is 512MB,
+but it is set to 1MB as there are no problems so far
 */
 const maxBulkLength = 1 * 1024 * 1024
 
