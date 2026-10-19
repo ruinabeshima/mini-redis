@@ -1,3 +1,11 @@
+/*
+	fmt.Fprintf formats directly on the bufio.Writer,
+	meaning there is no intermediate object involved.
+	This is unlike fmt.Appendf() which builds a complete byte
+	slice on the heap, and []byte(fmt.Sprintf()) which builds a
+	string and then copies it in a fresh byte slice.
+*/
+
 package resp
 
 import (
@@ -44,40 +52,28 @@ func (buf *Writer) Flush() error {
 }
 
 func (buf *Writer) writeSimpleString(v Value) error {
-	s := v.Str
-	data := []byte(fmt.Sprintf("+%s\r\n", s))
-
-	// Writes a byte slice to the buffer
-	_, err := buf.w.Write(data)
+	_, err := fmt.Fprintf(buf.w, "+%s\r\n", v.Str)
 	return err
 }
 
 func (buf *Writer) writeSimpleError(v Value) error {
-	s := v.Str
-	data := []byte(fmt.Sprintf("-%s\r\n", s))
-
-	_, err := buf.w.Write(data)
+	_, err := fmt.Fprintf(buf.w, "-%s\r\n", v.Str)
 	return err
 }
 
 func (buf *Writer) writeInteger(v Value) error {
-	num := v.Int
-	data := []byte(fmt.Sprintf(":%d\r\n", num))
-
-	_, err := buf.w.Write(data)
+	_, err := fmt.Fprintf(buf.w, ":%d\r\n", v.Int)
 	return err
 }
 
 func (buf *Writer) writeBulkString(v Value) error {
-	s := v.Str
-	var data []byte
+	// Null bulk string
 	if v.IsNull {
-		data = []byte("$-1\r\n") // Null bulk string
-	} else {
-		data = []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(s), s))
+		_, err := buf.w.WriteString("$-1\r\n")
+		return err
 	}
 
-	_, err := buf.w.Write(data)
+	_, err := fmt.Fprintf(buf.w, "$%d\r\n%s\r\n", len(v.Str), v.Str)
 	return err
 }
 
@@ -87,7 +83,7 @@ func (buf *Writer) writeArray(v Value) error {
 		_, err := buf.w.WriteString("*-1\r\n") // Null array
 		return err
 	}
-	if _, err := buf.w.WriteString(fmt.Sprintf("*%d\r\n", len(arr))); err != nil {
+	if _, err := fmt.Fprintf(buf.w, "*%d\r\n", len(arr)); err != nil {
 		return err
 	}
 
