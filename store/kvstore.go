@@ -35,3 +35,12 @@ func (s *Store) Get(key string) (string, bool) {
 	v, ok := s.data[key]
 	return v, ok
 }
+
+func (s *Store) Del(key string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	_, exists := s.data[key]
+	delete(s.data, key) // delete on a missing key is a safe no-op
+	return exists
+}

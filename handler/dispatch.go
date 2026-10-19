@@ -26,6 +26,7 @@ func New(s *store.Store) *Handler {
 		"ECHO": h.handleEcho,
 		"SET":  h.handleSet,
 		"GET":  h.handleGet,
+		"DEL":  h.handleDel,
 	}
 	return h
 }

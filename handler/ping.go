@@ -46,3 +46,19 @@ func (h *Handler) handleGet(args []string) resp.Value {
 
 	return resp.Value{Type: resp.BulkString, Str: val}
 }
+
+func (h *Handler) handleDel(args []string) resp.Value {
+	if len(args) == 0 {
+		return resp.Value{Type: resp.SimpleError, Str: "ERR wrong number of arguments for 'del' command"}
+	}
+
+	count := 0
+	for _, key := range args {
+		res := h.store.Del(key)
+		if res {
+			count++
+		}
+	}
+
+	return resp.Value{Type: resp.Integer, Int: int64(count)}
+}
